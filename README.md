@@ -76,12 +76,14 @@ $ chmod 700 testdir
 $ ls -ld testdir
 drwx------ 2 ogasa9995 ogasa9995 4096 Nov  3 22:08 testdir     # 변경 후 (700)
 
-
+---
 
 ## 6) Docker 설치 및 점검
 $ docker --version
 Docker version 29.9.2, ...
 (docker --version / docker info 실제 출력 붙여넣기)
+
+---
 
 ## 7) Docker 기본 운영
 $ docker images
@@ -110,6 +112,8 @@ $ docker logs mynginx
 접속 로그(GET /index.html 200)로 브라우저 접속 성공을,
 SIGQUIT ... exit로 정상 종료(graceful shutdown)를 확인했다.
 
+---
+
 ## 8) 컨테이너 실행 실습
 hello-world: 실행 성공 (설치 정상 동작 확인)
 ubuntu: docker run -it ubuntu bash로 진입, 내부에서 ls, echo 수행
@@ -119,6 +123,7 @@ attach: 실행 중인 컨테이너의 메인 프로세스에 연결 → 나가�
 exec: 컨테이너 안에서 새 프로세스(예: bash)를 실행 → 나가도 컨테이너는 계속 동작
 일회용 특성: --rm 없이도 컨테이너 종료 시 내부 변경사항은 이미지에 반영되지 않음
 
+---
 
 ## 9) Dockerfile 커스텀 이미지
 선택한 베이스: (실제 Dockerfile 내용에 맞게 수정)
@@ -135,6 +140,7 @@ dockerfile
 $ docker build -t myimage .
 $ docker run -d -p 8080:80 myimage
 
+---
 
 ## 10) 포트 매핑 접속 증거 (2회)
 
@@ -155,6 +161,8 @@ $ curl http://localhost:8081
 브라우저 접속 화면 (주소창 포함)
 port-8080
 port-8081
+
+---
 
 ## 11) 바인드 마운트 반영 (전/후 비교)
 
