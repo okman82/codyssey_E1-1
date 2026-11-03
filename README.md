@@ -62,14 +62,14 @@ $ ls -la testdir
 
 ## 5) 파일 권한 실습 (변경 전/후 비교)
 
-# 파일 권한 변경
+### 파일 권한 변경
 $ ls -l renamed.txt
 -rw-r--r-- 1 ogasa9995 ogasa9995 17 Nov  3 22:08 renamed.txt   # 변경 전 (644)
 $ chmod 600 renamed.txt
 $ ls -l renamed.txt
 -rw------- 1 ogasa9995 ogasa9995 17 Nov  3 22:08 renamed.txt   # 변경 후 (600)
 
-# 디렉토리 권한 변경
+### 디렉토리 권한 변경
 $ ls -ld testdir
 drwxr-xr-x 2 ogasa9995 ogasa9995 4096 Nov  3 22:08 testdir     # 변경 전 (755)
 $ chmod 700 testdir
