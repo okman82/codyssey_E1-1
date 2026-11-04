@@ -65,6 +65,30 @@ STEP 9. 선택 과제(18장): Compose와 SSH 인증을 추가로 수행합니다
 
 > **재현 시 주의사항:** 작업 폴더는 WSL 내부(`~/workstation-mission`)에 둡니다. `/mnt/c` 아래는 Windows 파일 시스템이어서 기본 설정에서는 `chmod` 결과가 의도대로 반영되지 않을 수 있습니다. Windows 탐색기에서는 `\\wsl$\Ubuntu\home\<사용자명>\workstation-mission` 경로로 접근합니다.
 
+### 2.3 프로젝트 구조
+
+```text
+workstation-mission/
+├── README.md
+├── Dockerfile
+├── docker-compose.yml
+├── site/
+│   └── index.html
+└── docs/
+    └── images/
+```
+
+| 경로 | 역할 | 분리 기준 |
+| --- | --- | --- |
+| `README.md` | 수행 절차, 로그, 개념 정리 | 저장소 첫 화면에서 전체 내용을 확인 |
+| `Dockerfile` | 커스텀 이미지 정의 | 빌드 컨텍스트 최상위에서 찾기 쉽게 배치 |
+| `docker-compose.yml` | 여러 컨테이너의 실행 설정 | 실행 설정을 코드와 분리해 문서화 |
+| `site/` | 웹 서버에 제공할 정적 파일 | 이미지 `COPY`와 바인드 마운트 대상을 한 폴더로 관리 |
+| `docs/images/` | 접속과 연동 증거 스크린샷 | 문서 자료를 웹 서버 파일과 분리 |
+
+`practice-lab`은 터미널과 권한 연습용 폴더로, 제출 프로젝트와 섞이지 않도록 `~/practice-lab`에 별도로 두었습니다.
+
+
 ## 3. 수행 체크리스트
 
 <!-- 해당 단계를 끝낼 때마다 [ ]를 [x]로 바꿉니다. -->
@@ -200,6 +224,10 @@ ogasa9995@GNIA-C201-B04:~/practice-lab/sub$ cd ..
 ogasa9995@GNIA-C201-B04:~/practice-lab$ pwd
 /home/ogasa9995/practice-lab
 ```
+ ![터미널 조작 화면](docs/images/terminal-log.png)
+
+
+
 
 ## 6. 권한 실습
 
@@ -238,6 +266,7 @@ ogasa9995@GNIA-C201-B04:~/practice-lab$ ls -l hello.sh
 ogasa9995@GNIA-C201-B04:~/practice-lab$ ./hello.sh
 script ran
 ```
+**변경 이유:** 일반 파일은 `644`로 두어 의도하지 않은 실행을 막고, 실행이 필요한 스크립트에만 `755`로 실행 권한을 주었습니다. 기대 동작대로 `644`에서는 실행이 거부되고 `755`에서는 실행되었습니다.
 
 ### 6.2 디렉토리 권한 변경
 
@@ -552,6 +581,8 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
+**성공 판정:** 이미지가 없어 `Pull complete` 후 내려받았고, `Hello from Docker!`가 출력되어 Docker 클라이언트, 데몬, 이미지 다운로드와 컨테이너 실행이 정상임을 확인했습니다.
+
 
 ### 9.2 ubuntu 컨테이너
 
@@ -686,6 +717,11 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{json .
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{json .Config.Healthcheck}}' my-web:1.0
 {"Test":["CMD-SHELL","wget -q --spider http://127.0.0.1/ || exit 1"],"Interval":10000000000,"Timeout":3000000000,"StartPeriod":5000000000,"Retries":3}
 ```
+**빌드 실패 시 점검 항목**
+- 현재 폴더에 `Dockerfile`이 있고 명령 끝에 빌드 컨텍스트 `.`을 넣었는지 확인합니다.
+- `COPY site/`의 경로가 빌드 컨텍스트 안에 있는지 `ls site`로 확인합니다.
+- 파일을 고쳤는데 반영되지 않으면 `CACHED` 단계와 빌드 대상 파일을 확인합니다.
+
 
 ## 11. 포트 매핑 및 접속 증거
 
@@ -818,6 +854,25 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker logs my-web-8080
 
 ![8081 포트 접속 화면](docs/images/port-8081.png)
 
+**주요 이미지와 컨테이너**
+
+| 구분 | 이름 | ID | 비고 |
+| --- | --- | --- | --- |
+| 이미지 | `nginx:alpine` | `3d6cab9c2941` | 베이스 이미지 |
+| 이미지 | `ubuntu:latest` | `febc1a2eec1f` | 내부 진입, 볼륨 실습 |
+| 이미지 | `my-web:1.0` | `d4fd352a161d` | 커스텀 이미지 |
+| 컨테이너 | `my-web-8080` | `76b2da8d8956` | `8080:80` |
+| 컨테이너 | `my-web-8081` | `0440271971f7` | `8081:80` |
+
+**포트 미응답 시 점검 항목**
+1. `docker ps`로 컨테이너가 `Up`이고 `healthy`인지 확인합니다.
+2. `PORTS`에 예상한 `호스트:컨테이너` 연결이 있는지 확인합니다.
+3. `docker logs <이름>`으로 서버 오류를 확인합니다.
+4. `curl -I http://localhost:<포트>`로 터미널에서 응답을 확인합니다.
+5. PowerShell의 `netstat -ano | findstr :<포트>`로 포트 대기 여부를 확인하고, 그래도 안 되면 방화벽 설정을 확인합니다.
+
+**포트 변경:** `docker run`에서는 `-p`의 앞 번호를 바꾸고, Compose에서는 `WEB_PORT=9090 APP_ENV=prod docker compose up -d`처럼 환경 변수로 바꿉니다. ([18.3장](#183-환경-변수로-포트와-모드-변경))
+
 ## 12. 바인드 마운트 변경 반영
 
 <!--
@@ -919,6 +974,8 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$
 
 **결과 해석:** 데이터가 컨테이너 내부가 아니라 컨테이너와 수명이 분리된 `web-data` 볼륨에 저장되었기 때문에, `vol-a`를 삭제해도 남아 있었고 새 컨테이너 `vol-b`에서 다시 읽을 수 있었습니다.
 
+**마운트 위치와 권한 점검:** 볼륨 위치는 `docker volume inspect web-data`의 `Mountpoint`(`/var/lib/docker/volumes/web-data/_data`)로 확인합니다. 컨테이너에서 쓰기 오류가 나면 `docker exec <이름> ls -ld /data`로 마운트 경로의 소유자와 권한을 점검합니다.
+
 ## 14. Git 설정 및 GitHub 연동
 
 <!--
@@ -995,6 +1052,9 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager log --oneline -n 3
 
 ![VSCode GitHub 연동 화면](docs/images/vscode-github.png)
 
+**푸시 성공 근거:** 위 `git status`의 `Your branch is up to date with 'origin/main'`으로 동기화를 확인했습니다. 원격 주소를 SSH로 변경한 뒤의 전체 푸시 출력은 [18.5장](#185-github-ssh-키-설정)에 있습니다.
+
+
 ## 15. 핵심 개념 정리
 
 ### 절대 경로와 상대 경로
@@ -1004,12 +1064,18 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager log --oneline -n 3
 - 절대 경로 예: `/home/ogasa9995/practice-lab`. `/tmp`에 있을 때도 같은 폴더를 가리킵니다.
 - 상대 경로 예: `cd ..`. `/home/ogasa9995/practice-lab/sub`에서 실행하자 상위 폴더인 `/home/ogasa9995/practice-lab`으로 이동했습니다.
 
+**선택 기준:** 실행 위치가 달라질 수 있는 스크립트와 예약 작업은 절대 경로가 안전하고, 터미널 작업과 저장소 내부 파일 참조는 상대 경로가 편리합니다.
+
+
 ### 파일 권한과 755, 644
 
 `r`은 읽기(4), `w`는 쓰기(2), `x`는 실행(1)입니다. 세 자리 숫자는 차례로 소유자, 그룹, 기타 사용자의 권한을 더한 값입니다.
 
 - `755`(`rwxr-xr-x`): 소유자는 7(4+2+1)로 모든 권한, 그룹과 기타 사용자는 5(4+1)로 읽기와 실행 권한을 가집니다.
 - `644`(`rw-r--r--`): 소유자는 6(4+2)으로 읽기와 쓰기, 그룹과 기타 사용자는 4로 읽기 권한만 가집니다.
+
+**참고:** 특수 권한으로 setuid(`4755`), setgid(`2755`), sticky(`1777`)가 있습니다. sticky는 `/tmp`처럼 함께 쓰는 폴더에서 다른 사용자의 파일 삭제를 제한합니다. 이번 실습에서는 사용하지 않았습니다.
+
 
 실습에서 `hello.sh`는 `644`일 때 `Permission denied`가 발생했고, `755`로 바꾸자 `script ran`이 출력되었습니다. 디렉토리의 `x`는 그 안으로 들어가거나 내부 항목에 접근할 수 있는 권한입니다.
 
@@ -1019,11 +1085,18 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager log --oneline -n 3
 
 커스텀 이미지는 `FROM`으로 기존 이미지를 가져와 필요한 내용을 더해 만듭니다. `nginx:alpine`에 `LABEL`, `ENV`, `COPY`, `HEALTHCHECK`를 추가해, 같은 환경을 다시 만들 수 있도록 Dockerfile로 기록했습니다.
 
+**재빌드 흐름:** `site/index.html`이나 `Dockerfile`을 수정해도 기존 이미지는 바뀌지 않습니다. 다시 빌드해 새 이미지를 만들고, 그 이미지로 컨테이너를 다시 실행해야 반영됩니다. 바뀌지 않은 단계는 캐시를 재사용합니다.
+
+
 ### 포트 매핑이 필요한 이유
 
 컨테이너는 격리된 네트워크에서 실행되므로, 호스트에서 접근할 수 있도록 포트를 연결해야 합니다. `-p <호스트 포트>:<컨테이너 포트>` 형식을 사용합니다.
 
 실습의 두 컨테이너는 내부 포트가 모두 80이지만, 호스트 포트를 각각 8080과 8081로 연결해 함께 실행하고 따로 접속할 수 있었습니다.
+
+**요청 흐름:** 요청은 `브라우저 → 호스트 포트(8080) → Docker 네트워크 → 컨테이너 포트(80)` 순서로 전달됩니다.
+
+
 
 ### 바인드 마운트와 Docker 볼륨
 
@@ -1033,6 +1106,8 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager log --oneline -n 3
 | 주요 용도 | 개발 중 파일 변경 즉시 반영 | 데이터베이스 등 영속 데이터 보관 |
 | 지정 예 | `-v "$(pwd)/site:/usr/share/nginx/html"` | `-v web-data:/data` |
 | 실습 결과 | 호스트 파일 수정 후 8082가 `v2`로 변경, 이미지로 실행한 8080은 `v1` 유지 | `vol-a` 삭제 후 `vol-b`에서 `persist-test` 확인 |
+
+**운영 관점:** 데이터베이스처럼 유지할 데이터는 볼륨에 두고, 볼륨 자체도 장애나 삭제에 대비해 별도로 백업합니다. 소스처럼 호스트에서 직접 고치는 파일은 바인드 마운트가 적합합니다.
 
 ### Git과 GitHub
 
@@ -1069,6 +1144,8 @@ rm chmod-test.txt
 - **원인 가설:** 커밋 메시지를 입력하지 않아 커밋이 만들어지지 않았을 것으로 판단했습니다.
 - **확인:** Message 칸에 내용을 입력한 뒤 다시 실행하자 커밋과 푸시가 정상 진행되었습니다.
 - **해결/대안:** Git 커밋에는 메시지가 필요하므로, 커밋 전에 변경 내용을 설명하는 메시지를 입력합니다. 푸시 후 `git status`에서 `up to date with 'origin/main'`을 확인합니다.
+- **재현:** VSCode 소스 제어에서 변경 파일을 둔 채 Message를 비우고 Commit을 누릅니다.
+
 
 ### 사례 2: git push가 서버 오류로 거부됨
 
@@ -1083,6 +1160,8 @@ rm chmod-test.txt
 - **원인 가설:** 업로드가 완료되었고 인증 실패 메시지가 없었으며, 오류가 `remote:`로 표시되어 GitHub 서버 측 일시 오류로 추정했습니다.
 - **확인:** githubstatus.com에서 GitHub 서비스 상태를 확인했습니다. 잠시 후 푸시를 다시 실행한 뒤 `git log`에서 실패 직전에 만든 `12d578b` 커밋이 원격 이력에 포함된 것을 확인했습니다.
 - **해결/대안:** 코드나 설정을 변경하지 않고 잠시 기다린 뒤 `git push`를 다시 실행했습니다. 같은 오류가 반복되면 GitHub 상태 페이지와 오류의 Request ID를 확인합니다.
+- **재현:** GitHub 서버 측 오류로 추정되어 임의로 재현할 수 없습니다. 같은 오류가 나면 상태 페이지와 Request ID를 확인한 뒤 다시 푸시합니다.
+
 
 ### 사례 3: SSH 연결 시 Permission denied 발생
 
@@ -1098,6 +1177,59 @@ rm chmod-test.txt
   Hi okman82! You've successfully authenticated, but GitHub does not provide shell access.
   ```
 - **해결/대안:** 공개키(`.pub`)만 GitHub에 등록하고 개인키는 PC에만 보관했습니다. 패스프레이즈를 쓰는 경우 `ssh-agent`와 `ssh-add`로 터미널 세션 동안 반복 입력을 줄였습니다.
+- **재현:** 공개키를 GitHub에 등록하지 않은 키로 `ssh -T git@github.com`을 실행합니다.
+
+
+### 사례 4: 호스트 포트 충돌로 컨테이너 실행 실패
+
+포트 충돌 진단 절차를 확인하기 위해 사용 중인 8080 포트로 컨테이너를 실행해 재현했습니다.
+
+- **문제:** 컨테이너가 실행되지 않고 포트가 이미 할당되었다는 오류가 발생했습니다.
+  ```bash
+  $ docker run -d -p 8080:80 --name dup-web my-web:1.0
+  docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint dup-web (...): Bind for 0.0.0.0:8080 failed: port is already allocated
+  ```
+- **원인 가설:** 다른 컨테이너가 호스트 8080 포트를 이미 사용하고 있을 수 있습니다.
+- **확인:** 8080을 게시한 컨테이너가 `my-web-8080`임을 확인했고, 실패한 `dup-web`은 `Created` 상태로 남아 있었습니다.
+  ```bash
+  $ docker ps --filter publish=8080
+  76b2da8d8956   my-web:1.0   ...   Up 2 hours (healthy)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-8080
+  $ docker ps -a --filter name=dup-web
+  fe862074236d   my-web:1.0   ...   Created   dup-web
+  ```
+  Windows에서 8080을 대기 중인 프로세스도 확인했습니다. (내부 IP가 포함된 다른 연결은 제외)
+  ```powershell
+  PS> netstat -ano | findstr :8080
+    TCP    0.0.0.0:8080      0.0.0.0:0      LISTENING    19812
+    TCP    127.0.0.1:8080    0.0.0.0:0      LISTENING    17800
+    TCP    [::]:8080         [::]:0         LISTENING    19812
+    TCP    [::1]:8080        [::]:0         LISTENING    17800
+  PS> tasklist /FI "PID eq 19812"
+  com.docker.backend.exe       19812 Console                    1    156,572 K
+  PS> tasklist /FI "PID eq 17800"
+  wslrelay.exe                 17800 Console                    1     10,616 K
+  ```
+  `LISTENING` 프로세스가 Docker Desktop과 WSL 관련 프로그램이므로, Windows 프로세스를 종료하지 않고 컨테이너 쪽에서 포트를 조정해야 한다고 판단했습니다.
+- **해결/대안:** 기존 컨테이너를 유지하기 위해 실패한 컨테이너를 삭제하고 다른 호스트 포트로 실행해 응답을 확인했습니다.
+- **재현:** `my-web-8080`이 실행 중일 때 `docker run -d -p 8080:80 --name dup-web my-web:1.0`을 실행합니다.
+
+  ```bash
+  $ docker rm dup-web
+  $ docker run -d -p 8083:80 --name dup-web my-web:1.0
+  $ curl -I http://localhost:8083
+  HTTP/1.1 200 OK
+  $ docker rm -f dup-web
+  ```
+
+**포트 충돌 진단 순서**
+
+1. 오류 메시지에서 충돌한 호스트 포트를 확인합니다.
+2. `docker ps --filter publish=<포트>`로 포트를 사용하는 컨테이너를 찾습니다.
+3. PowerShell에서 `netstat -ano | findstr :<포트>`로 `LISTENING` 상태의 PID를 찾고, `tasklist /FI "PID eq <PID>"`로 프로그램을 확인합니다. `ESTABLISHED`는 포트를 대기 중인 프로세스가 아닐 수 있으므로 구분합니다.
+4. 포트를 비우거나 다른 포트를 사용합니다.
+   - 컨테이너가 점유한 경우: `docker stop <이름>` 또는 `docker rm -f <이름>`
+   - 다른 프로그램이 점유한 경우: 프로그램을 확인한 뒤 종료하거나 다른 호스트 포트 사용
+5. `docker ps`와 `curl -I`로 결과를 확인합니다.
 
 
 ## 17. 보안 및 개인정보 점검
