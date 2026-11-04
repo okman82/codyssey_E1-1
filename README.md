@@ -633,29 +633,59 @@ my-ubuntu
 
 ### 10.1 선택한 베이스
 
-- **베이스 이미지:** ✏️ 예: `nginx:alpine`
-- **선택 이유:** ✏️ 내 선택 이유
+- **베이스 이미지:** `nginx:alpine`
+- **선택 이유:** 웹 서버가 이미 포함되어 있어 정적 페이지 교체에 집중할 수 있고, Alpine 기반이라 이미지가 작습니다(63MB).
 - **소스:** [site/index.html](site/index.html), [Dockerfile](Dockerfile)
 
 ### 10.2 커스텀 포인트
 
 | 항목 | 적용 내용 | 목적 |
 | --- | --- | --- |
-| `LABEL` | ✏️ 적용 값 | ✏️ 이미지 정보 표시 |
-| `ENV` | ✏️ 적용 값 | ✏️ 실행 모드 구분 |
-| `COPY` | ✏️ 적용 값 | ✏️ 기본 페이지를 내 콘텐츠로 교체 |
-| `HEALTHCHECK` | ✏️ 적용 값 | ✏️ 웹 서버 응답 상태 확인 |
+| `LABEL` | `org.opencontainers.image.title="mani-workstation-web"` | 이미지 정보 표시 |
+| `ENV` | `APP_ENV=dev` | 실행 모드 구분 |
+| `COPY` | `site/` → `/usr/share/nginx/html/` | 기본 페이지를 내 콘텐츠로 교체 |
+| `HEALTHCHECK` | 10초 간격으로 `wget` 요청, 3회 재시도 | 웹 서버 응답 상태 확인 |
 
 ### 10.3 Dockerfile
 
 ```dockerfile
-✏️ 내가 작성한 Dockerfile 전체 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ cat Dockerfile
+FROM nginx:alpine
+LABEL org.opencontainers.image.title="mani-workstation-web"
+ENV APP_ENV=dev
+COPY site/ /usr/share/nginx/html/
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1/ || exit 1
 ```
 
 ### 10.4 빌드 결과
 
 ```bash
-✏️ docker build, docker images 명령과 핵심 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker build -t my-web:1.0 .
+[+] Building 0.3s (7/7) FINISHED                                                                                  docker:default
+ => [internal] load build definition from Dockerfile                                                                        0.0s
+ => => transferring dockerfile: 290B                                                                                        0.0s
+ => [internal] load metadata for docker.io/library/nginx:alpine                                                             0.0s
+ => [internal] load .dockerignore                                                                                           0.0s
+ => => transferring context: 2B                                                                                             0.0s
+ => [1/2] FROM docker.io/library/nginx:alpine                                                                               0.1s
+ => [internal] load build context                                                                                           0.1s
+ => => transferring context: 324B                                                                                           0.0s
+ => [2/2] COPY site/ /usr/share/nginx/html/                                                                                 0.0s
+ => exporting to image                                                                                                      0.0s
+ => => exporting layers                                                                                                     0.0s
+ => => writing image sha256:d4fd352a161dd8b1b9a410bf30062247f15758fc5c5895ece0cedee58dda09c2                                0.0s
+ => => naming to docker.io/library/my-web:1.0                                                                               0.0s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker images my-web
+                                                                                                             i Info →   U  In Use
+IMAGE        ID             DISK USAGE   CONTENT SIZE   EXTRA
+my-web:1.0   d4fd352a161d         63MB             0B
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{json .Config.Labels}}' my-web:1.0
+{"maintainer":"NGINX Docker Maintainers <docker-maint@nginx.com>","org.opencontainers.image.title":"mani-workstation-web"}
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{json .Config.Env}}' my-web:1.0
+["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","NGINX_VERSION=1.31.8","PKG_RELEASE=1","DYNPKG_RELEASE=1","NJS_VERSION=1.0.2","NJS_RELEASE=1","ACME_VERSION=0.4.1","APP_ENV=dev"]
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{json .Config.Healthcheck}}' my-web:1.0
+{"Test":["CMD-SHELL","wget -q --spider http://127.0.0.1/ || exit 1"],"Interval":10000000000,"Timeout":3000000000,"StartPeriod":5000000000,"Retries":3}
 ```
 
 ## 11. 포트 매핑 및 접속 증거
