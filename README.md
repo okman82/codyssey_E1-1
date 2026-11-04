@@ -704,7 +704,113 @@ docker logs my-web-8080
 -->
 
 ```bash
-✏️ 컨테이너 실행, curl, docker ps, 상태 확인 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d -p 8080:80 --name my-web-8080 my-web:1.0
+76b2da8d89564f08e643d4c4371836d3a8edb8bd9fce14ce0cb8615df3616b8e
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -i http://localhost:8080
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Wed, 04 Nov 2026 11:15:11 GMT
+Content-Type: text/html
+Content-Length: 252
+Last-Modified: Wed, 04 Nov 2026 11:08:03 GMT
+Connection: keep-alive
+ETag: "6aeb1213-fc"
+Accept-Ranges: bytes
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Workstation</title>
+</head>
+<body>
+  <h1>Mani의 개발 워크스테이션</h1>
+  <p>Dockerfile로 만든 커스텀 웹 서버입니다.</p>
+  <p>version: v1</p>
+</body>
+</html>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d -p 8081:80 --name my-web-8081 my-web:1.0
+0440271971f70f6ab5307549b2caf03570ddf4347ed06a96c085996b83dd22dd
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -i http://localhost:8081
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Wed, 04 Nov 2026 11:15:45 GMT
+Content-Type: text/html
+Content-Length: 252
+Last-Modified: Wed, 04 Nov 2026 11:08:03 GMT
+Connection: keep-alive
+ETag: "6aeb1213-fc"
+Accept-Ranges: bytes
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Workstation</title>
+</head>
+<body>
+  <h1>Mani의 개발 워크스테이션</h1>
+  <p>Dockerfile로 만든 커스텀 웹 서버입니다.</p>
+  <p>version: v1</p>
+</body>
+</html>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps
+CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS                    PORTS                                     NAMES
+0440271971f7   my-web:1.0   "/docker-entrypoint.…"   16 seconds ago   Up 16 seconds (healthy)   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   my-web-8081
+76b2da8d8956   my-web:1.0   "/docker-entrypoint.…"   58 seconds ago   Up 58 seconds (healthy)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-8080
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker inspect --format '{{.State.Health.Status}}' my-web-8080
+healthy
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker logs my-web-8080
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/11/04 11:15:00 [notice] 1#1: using the "epoll" event method
+2026/11/04 11:15:00 [notice] 1#1: nginx/1.31.8
+2026/11/04 11:15:00 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0)
+2026/11/04 11:15:00 [notice] 1#1: OS: Linux 6.18.54.1-microsoft-standard-WSL2
+2026/11/04 11:15:00 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026/11/04 11:15:00 [notice] 1#1: start worker processes
+2026/11/04 11:15:00 [notice] 1#1: start worker process 30
+2026/11/04 11:15:00 [notice] 1#1: start worker process 31
+2026/11/04 11:15:00 [notice] 1#1: start worker process 32
+2026/11/04 11:15:00 [notice] 1#1: start worker process 33
+2026/11/04 11:15:00 [notice] 1#1: start worker process 34
+2026/11/04 11:15:00 [notice] 1#1: start worker process 35
+2026/11/04 11:15:00 [notice] 1#1: start worker process 36
+2026/11/04 11:15:00 [notice] 1#1: start worker process 37
+2026/11/04 11:15:00 [notice] 1#1: start worker process 38
+2026/11/04 11:15:00 [notice] 1#1: start worker process 39
+2026/11/04 11:15:00 [notice] 1#1: start worker process 40
+2026/11/04 11:15:00 [notice] 1#1: start worker process 41
+2026/11/04 11:15:00 [notice] 1#1: start worker process 42
+2026/11/04 11:15:00 [notice] 1#1: start worker process 43
+2026/11/04 11:15:00 [notice] 1#1: start worker process 44
+2026/11/04 11:15:00 [notice] 1#1: start worker process 45
+2026/11/04 11:15:00 [notice] 1#1: start worker process 46
+2026/11/04 11:15:00 [notice] 1#1: start worker process 47
+2026/11/04 11:15:00 [notice] 1#1: start worker process 48
+2026/11/04 11:15:00 [notice] 1#1: start worker process 49
+2026/11/04 11:15:00 [notice] 1#1: start worker process 50
+2026/11/04 11:15:00 [notice] 1#1: start worker process 51
+2026/11/04 11:15:00 [notice] 1#1: start worker process 52
+2026/11/04 11:15:00 [notice] 1#1: start worker process 53
+127.0.0.1 - - [04/Nov/2026:11:15:05 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+172.17.0.1 - - [04/Nov/2026:11:15:11 +0000] "GET / HTTP/1.1" 200 252 "-" "curl/8.18.0" "-"
+127.0.0.1 - - [04/Nov/2026:11:15:15 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+127.0.0.1 - - [04/Nov/2026:11:15:25 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+127.0.0.1 - - [04/Nov/2026:11:15:35 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+127.0.0.1 - - [04/Nov/2026:11:15:45 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+127.0.0.1 - - [04/Nov/2026:11:15:55 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+127.0.0.1 - - [04/Nov/2026:11:16:05 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
 ```
 
 **http://localhost:8080 접속 화면**
@@ -737,10 +843,23 @@ docker rm -f my-web-bind
 -->
 
 ```bash
-✏️ 실행 명령과 변경 전후 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ cd ~/workstation-mission
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d --name my-web-bind -p 8082:80 -v "$(pwd)/site:/usr/share/nginx/html" my-web:1.0
+31c6f426ff7220c787a5f7ae67c976935a527be0d0ed19d227cdee2a87bcd9b5
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -s http://localhost:8082 | grep "version:"
+  <p>version: v1</p>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ sed -i 's/version: v1/version: v2/' site/index.html
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -s http://localhost:8082 | grep "version:"
+  <p>version: v2</p>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -s http://localhost:8080 | grep "version:"
+  <p>version: v1</p>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ sed -i 's/version: v2/version: v1/' site/index.html
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker rm -f my-web-bind
+my-web-bind
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
 ```
 
-**결과 해석:** ✏️ 8082와 8080의 응답이 달랐던 이유를 이미지와 마운트의 차이로 설명
+**결과 해석:** 8082는 호스트의 `site/` 폴더를 바인드 마운트해 수정 내용이 재빌드 없이 바로 반영되었습니다. 8080은 빌드할 때 이미지에 복사된 파일을 사용하므로 `v1`을 유지했습니다.
 
 ## 13. Docker 볼륨 영속성
 
