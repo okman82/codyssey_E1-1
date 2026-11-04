@@ -262,8 +262,123 @@ docker info에 사용자명이나 개인 정보가 보이면 마스킹합니다.
 -->
 
 ```bash
-✏️ docker --version, docker info 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker --version
+Docker version 29.9.2, build a82e528
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker info
+Client:
+ Version:    29.9.2
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  agent: Docker AI Agent Runner (Docker Inc.)
+    Version:  v1.152.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-agent
+  ai: Docker AI Agent - Ask Gordon (Docker Inc.)
+    Version:  v1.33.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-ai
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.38.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v5.6.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-compose
+  debug: Get a shell into any image or container (Docker Inc.)
+    Version:  0.49.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-debug
+  desktop: Docker Desktop commands (Docker Inc.)
+    Version:  4.98.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-desktop
+  dhi: CLI for managing Docker Hardened Images (Docker Inc.)
+    Version:  v0.0.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-dhi
+  extension: Manages Docker extensions (Docker Inc.)
+    Version:  v0.2.32
+    Path:     /usr/local/lib/docker/cli-plugins/docker-extension
+  init: Creates Docker-related starter files for your project (Docker Inc.)
+    Version:  v1.4.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-init
+  mcp: Docker MCP Plugin (Docker Inc.)
+    Version:  v0.44.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-mcp
+  model: Docker Model Runner (Docker Inc.)
+    Version:  v1.2.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-model
+  offload: Docker Offload (Docker Inc.)
+    Version:  v0.7.35
+    Path:     /usr/local/lib/docker/cli-plugins/docker-offload
+  pass: Docker Pass Secrets Manager Plugin (beta) (Docker Inc.)
+    Version:  v0.3.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-pass
+  sandbox: "docker sandbox" is deprecated, use Docker Sandboxes instead (Docker Inc.)
+    Version:  v0.13.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-sandbox
+  scout: Docker Scout (Docker Inc.)
+    Version:  v1.27.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-scout
+
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 29.9.2
+ Storage Driver: overlay2
+  Backing Filesystem: extfs
+  Supports d_type: true
+  Using metacopy: false
+  Native Overlay Diff: true
+  userxattr: false
+ Logging Driver: local
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Discovered Devices:
+  cdi: docker.com/gpu=webgpu
+ Swarm: inactive
+ Runtimes: nvidia runc io.containerd.runc.v2
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc version: v1.5.2-0-g29dd3dc2
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.18.54.1-microsoft-standard-WSL2
+ Operating System: Docker Desktop
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 24
+ Total Memory: 15.25GiB
+ Name: docker-desktop
+ ID: b41381ce-acad-47ee-adaf-2183099f438c
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ HTTP Proxy: http.docker.internal:3128
+ HTTPS Proxy: http.docker.internal:3128
+ No Proxy: hubproxy.docker.internal
+ Labels:
+  com.docker.desktop.address=unix:///var/run/docker-cli.sock
+ Experimental: false
+ Insecure Registries:
+  hubproxy.docker.internal:5555
+  127.0.0.0/8
+  ::1/128
+ Live Restore Enabled: false
+ Firewall Backend: iptables
+
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
 ```
+**결과 해석:** `Server Version: 29.9.2`가 출력되어 Docker 데몬이 동작 중이며, `Operating System: Docker Desktop`과 WSL2 커널로 Docker Desktop의 WSL 2 환경에서 실행 중임을 확인했습니다.
+
 
 ## 8. Docker 기본 운영 명령
 
@@ -283,8 +398,100 @@ docker rm ops-web
 -->
 
 ```bash
-✏️ 이미지, 컨테이너, 로그, 리소스 확인 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker pull nginx:alpine
+alpine: Pulling from library/nginx
+7b229517ed22: Pull complete
+12b85cff06fd: Pull complete
+657023555a2a: Pull complete
+7cc330898115: Pull complete
+26185d08a3ec: Pull complete
+2ec5fb117ffa: Pull complete
+9b0f7dfe35b2: Pull complete
+b9b388a21ecf: Pull complete
+Digest: sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606
+Status: Downloaded newer image for nginx:alpine
+docker.io/library/nginx:alpine
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker pull ubuntu
+Using default tag: latest
+latest: Pulling from library/ubuntu
+edafa32f5d9e: Pull complete
+f3f25b84a7d7: Pull complete
+Digest: sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab00e11f4d3c
+Status: Downloaded newer image for ubuntu:latest
+docker.io/library/ubuntu:latest
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker images
+                                                                                                             i Info →   U  In Use
+IMAGE           ID             DISK USAGE   CONTENT SIZE   EXTRA
+nginx:alpine    3d6cab9c2941         63MB             0B
+ubuntu:latest   febc1a2eec1f        102MB             0B
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d --name ops-web -p 8079:80 nginx:alpine
+4d7740b7c526c0c36e2b3e93d42886064b641d7499a17d653ebccf87d30af7ee
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+4d7740b7c526   nginx:alpine   "/docker-entrypoint.…"   17 seconds ago   Up 16 seconds   0.0.0.0:8079->80/tcp, [::]:8079->80/tcp   ops-web
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -s http://localhost:8079 > /dev/null
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker logs ops-web
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/11/04 10:09:00 [notice] 1#1: using the "epoll" event method
+2026/11/04 10:09:00 [notice] 1#1: nginx/1.31.8
+2026/11/04 10:09:00 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0)
+2026/11/04 10:09:00 [notice] 1#1: OS: Linux 6.18.54.1-microsoft-standard-WSL2
+2026/11/04 10:09:00 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026/11/04 10:09:00 [notice] 1#1: start worker processes
+2026/11/04 10:09:00 [notice] 1#1: start worker process 30
+2026/11/04 10:09:00 [notice] 1#1: start worker process 31
+2026/11/04 10:09:00 [notice] 1#1: start worker process 32
+2026/11/04 10:09:00 [notice] 1#1: start worker process 33
+2026/11/04 10:09:00 [notice] 1#1: start worker process 34
+2026/11/04 10:09:00 [notice] 1#1: start worker process 35
+2026/11/04 10:09:00 [notice] 1#1: start worker process 36
+2026/11/04 10:09:00 [notice] 1#1: start worker process 37
+2026/11/04 10:09:00 [notice] 1#1: start worker process 38
+2026/11/04 10:09:00 [notice] 1#1: start worker process 39
+2026/11/04 10:09:00 [notice] 1#1: start worker process 40
+2026/11/04 10:09:00 [notice] 1#1: start worker process 41
+2026/11/04 10:09:00 [notice] 1#1: start worker process 42
+2026/11/04 10:09:00 [notice] 1#1: start worker process 43
+2026/11/04 10:09:00 [notice] 1#1: start worker process 44
+2026/11/04 10:09:00 [notice] 1#1: start worker process 45
+2026/11/04 10:09:00 [notice] 1#1: start worker process 46
+2026/11/04 10:09:00 [notice] 1#1: start worker process 47
+2026/11/04 10:09:00 [notice] 1#1: start worker process 48
+2026/11/04 10:09:00 [notice] 1#1: start worker process 49
+2026/11/04 10:09:00 [notice] 1#1: start worker process 50
+2026/11/04 10:09:00 [notice] 1#1: start worker process 51
+2026/11/04 10:09:00 [notice] 1#1: start worker process 52
+2026/11/04 10:09:00 [notice] 1#1: start worker process 53
+172.17.0.1 - - [04/Nov/2026:10:09:38 +0000] "GET / HTTP/1.1" 200 896 "-" "curl/8.18.0" "-"
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker stats --no-stream
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O         PIDS
+4d7740b7c526   ops-web   0.00%     22.65MiB / 15.25GiB   0.14%     1.8kB / 1.68kB   10.2MB / 12.3kB   25
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker stop ops-web
+ops-web
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS                     PORTS     NAMES
+4d7740b7c526   nginx:alpine   "/docker-entrypoint.…"   About a minute ago   Exited (0) 9 seconds ago             ops-web
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker rm ops-web
+ops-web
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
 ```
+**결과 해석:**
+- `"GET / HTTP/1.1" 200` 로그로 `curl` 요청이 성공했음을 확인했습니다. 요청 출발지 `172.17.0.1`은 Docker 브리지 네트워크의 주소입니다.
+- `docker info`의 CPU 수가 24개이고, nginx도 worker process를 24개 시작했습니다.
+- 중지한 `ops-web`은 `docker ps`에서 사라졌지만 `docker ps -a`에는 `Exited (0)`으로 남았고, `docker rm` 후에야 목록에서 사라졌습니다.
+
 
 ## 9. 컨테이너 실행 실습
 
@@ -317,13 +524,50 @@ docker rm my-ubuntu
 ### 9.1 hello-world
 
 ```bash
-✏️ docker run hello-world 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pull complete
+Digest: sha256:c567b231f65614688711a75f31518a064258a51d442117a3e771a3a8fdba78ef
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
 ```
 
 ### 9.2 ubuntu 컨테이너
 
 ```bash
-✏️ 컨테이너 내부 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -it --name my-ubuntu ubuntu bash
+root@47333ed4e8e3:/# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@47333ed4e8e3:/# echo "inside container"
+inside container
+root@47333ed4e8e3:/# exit
+exit
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED              STATUS                          PORTS     NAMES
+47333ed4e8e3   ubuntu        "bash"     56 seconds ago       Exited (0) 7 seconds ago                  my-ubuntu
+a54f307a22fc   hello-world   "/hello"   About a minute ago   Exited (0) About a minute ago             frosty_mcnulty
+
 ```
 
 ### 9.3 attach와 exec 비교
@@ -332,11 +576,34 @@ docker rm my-ubuntu
 
 | 구분 | 동작 | 내 관찰 결과 |
 | --- | --- | --- |
-| `docker exec -it` | 실행 중인 컨테이너에서 새 프로세스를 시작합니다. 그 셸을 종료해도 메인 프로세스는 유지됩니다. | ✏️ 관찰 결과 |
-| `docker attach` | 메인 프로세스의 입출력에 연결합니다. 여기서 `exit`하면 메인 프로세스가 끝나 컨테이너도 종료됩니다. | ✏️ 관찰 결과 |
+| `docker exec -it` | 실행 중인 컨테이너에서 새 프로세스를 시작합니다. 그 셸을 종료해도 메인 프로세스는 유지됩니다. | `ps -ef`에서 PID 1과 별도로 PID 8의 `bash`를 확인했고, `exit` 후에도 컨테이너가 `Up` 상태였습니다. |
+| `docker attach` | 메인 프로세스의 입출력에 연결합니다. 여기서 `exit`하면 메인 프로세스가 끝나 컨테이너도 종료됩니다. | `exit` 후 컨테이너가 `Exited (0)`으로 바뀌었습니다. |
 
 ```bash
-✏️ exec, attach 실습 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker start my-ubuntu
+my-ubuntu
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker exec -it my-ubuntu bash
+root@47333ed4e8e3:/# echo "via exec"
+via exec
+root@47333ed4e8e3:/# ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 10:59 pts/0    00:00:00 bash
+root           8       0  0 10:59 pts/1    00:00:00 bash
+root          15       8  0 11:00 pts/1    00:00:00 ps -ef
+root@47333ed4e8e3:/# exit
+exit
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED         STATUS              PORTS     NAMES
+47333ed4e8e3   ubuntu    "bash"    3 minutes ago   Up About a minute             my-ubuntu
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker attach my-ubuntu
+root@47333ed4e8e3:/# exit
+exit
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS                     PORTS     NAMES
+47333ed4e8e3   ubuntu        "bash"     3 minutes ago   Exited (0) 3 seconds ago             my-ubuntu
+a54f307a22fc   hello-world   "/hello"   3 minutes ago   Exited (0) 3 minutes ago             frosty_mcnulty
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker rm my-ubuntu
+my-ubuntu
 ```
 
 ## 10. Dockerfile 기반 커스텀 이미지
