@@ -1286,7 +1286,18 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose down
 ### 18.5 GitHub SSH 키 설정
 
 ```bash
-(ssh -T, git remote -v, git push 명령과 출력)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ ssh -T git@github.com
+git@github.com: Permission denied (publickey).
+(GitHub에 공개키 등록)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ ssh -T git@github.com
+Enter passphrase for key '/home/ogasa9995/.ssh/id_ed25519':
+Hi okman82! You've successfully authenticated, but GitHub does not provide shell access.
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git remote set-url origin git@github.com:okman82/codyssey_E1-1.git
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git remote -v
+origin  https://github.com/okman82/codyssey_E1-1.git (fetch)
+origin  https://github.com/okman82/codyssey_E1-1.git (push)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git push origin main
+Everything up-to-date
 ```
 
 **배운 점:** HTTPS는 저장된 자격 증명으로, SSH는 개인키와 GitHub에 등록한 공개키로 인증합니다. 공개키만 등록하고, 개인키와 비밀번호는 공유하거나 커밋하지 않습니다.
