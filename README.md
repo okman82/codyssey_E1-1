@@ -69,17 +69,17 @@ STEP 9. 선택 과제(18장): Compose와 SSH 인증을 추가로 수행합니다
 
 <!-- 해당 단계를 끝낼 때마다 [ ]를 [x]로 바꿉니다. -->
 
-- [ ] 터미널 기본 조작 및 폴더 구성
-- [ ] 파일/디렉토리 권한 변경 실습
-- [ ] Docker 설치 및 데몬 점검
-- [ ] Docker 기본 운영 명령 수행
-- [ ] hello-world, ubuntu 컨테이너 실행
-- [ ] Dockerfile 기반 커스텀 이미지 빌드/실행
-- [ ] 포트 매핑 접속 확인(2개 포트)
-- [ ] 바인드 마운트 변경 반영 확인
-- [ ] Docker 볼륨 영속성 확인
-- [ ] Git 설정 및 GitHub/VSCode 연동
-- [ ] 민감정보 마스킹 확인
+- [x] 터미널 기본 조작 및 폴더 구성
+- [x] 파일/디렉토리 권한 변경 실습
+- [x] Docker 설치 및 데몬 점검
+- [x] Docker 기본 운영 명령 수행
+- [x] hello-world, ubuntu 컨테이너 실행
+- [x] Dockerfile 기반 커스텀 이미지 빌드/실행
+- [x] 포트 매핑 접속 확인(2개 포트)
+- [x] 바인드 마운트 변경 반영 확인
+- [x] Docker 볼륨 영속성 확인
+- [x] Git 설정 및 GitHub/VSCode 연동
+- [x] 민감정보 마스킹 확인
 
 ## 4. 검증 방법 요약
 
@@ -226,7 +226,7 @@ ls -ld locked
 ### 6.1 파일 권한 변경
 
 ```bash
-printf '#!/bin/sh\necho "script ran"\n' > hello.sh
+ogasa9995@GNIA-C201-B04:~/practice-lab$ printf '#!/bin/sh\necho "script ran"\n' > hello.sh
 ogasa9995@GNIA-C201-B04:~/practice-lab$ chmod 644 hello.sh
 ogasa9995@GNIA-C201-B04:~/practice-lab$ ls -l hello.sh
 -rw-r--r-- 1 ogasa9995 ogasa9995 28 Nov  4 18:45 hello.sh
@@ -649,7 +649,6 @@ my-ubuntu
 ### 10.3 Dockerfile
 
 ```dockerfile
-ogasa9995@GNIA-C201-B04:~/workstation-mission$ cat Dockerfile
 FROM nginx:alpine
 LABEL org.opencontainers.image.title="mani-workstation-web"
 ENV APP_ENV=dev
@@ -729,9 +728,6 @@ Accept-Ranges: bytes
   <p>version: v1</p>
 </body>
 </html>
-ogasa9995@GNIA-C201-B04:~/workstation-mission$
-ogasa9995@GNIA-C201-B04:~/workstation-mission$
-ogasa9995@GNIA-C201-B04:~/workstation-mission$
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d -p 8081:80 --name my-web-8081 my-web:1.0
 0440271971f70f6ab5307549b2caf03570ddf4347ed06a96c085996b83dd22dd
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -i http://localhost:8081
@@ -811,6 +807,7 @@ ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker logs my-web-8080
 127.0.0.1 - - [04/Nov/2026:11:15:45 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
 127.0.0.1 - - [04/Nov/2026:11:15:55 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
 127.0.0.1 - - [04/Nov/2026:11:16:05 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+(이후 로그 생략)
 ```
 
 **http://localhost:8080 접속 화면**
@@ -1084,15 +1081,30 @@ rm chmod-test.txt
   error: failed to push some refs to 'https://github.com/okman82/codyssey_E1-1.git'
   ```
 - **원인 가설:** 업로드가 완료되었고 인증 실패 메시지가 없었으며, 오류가 `remote:`로 표시되어 GitHub 서버 측 일시 오류로 추정했습니다.
-- **확인:** githubstatus.com에서 GitHub 서비스 상태를 확인했습니다. 잠시 후 푸시를 다시 실행한 뒤 `git status`에서 `Your branch is up to date with 'origin/main'`을, `git log`에서 `0803bae` 커밋이 `origin/main`에 반영된 것을 확인했습니다.
+- **확인:** githubstatus.com에서 GitHub 서비스 상태를 확인했습니다. 잠시 후 푸시를 다시 실행한 뒤 `git log`에서 실패 직전에 만든 `12d578b` 커밋이 원격 이력에 포함된 것을 확인했습니다.
 - **해결/대안:** 코드나 설정을 변경하지 않고 잠시 기다린 뒤 `git push`를 다시 실행했습니다. 같은 오류가 반복되면 GitHub 상태 페이지와 오류의 Request ID를 확인합니다.
+
+### 사례 3: SSH 연결 시 Permission denied 발생
+
+- **문제:** SSH 키 생성 후 연결을 확인하자 인증이 거부되었습니다.
+  ```bash
+  $ ssh -T git@github.com
+  git@github.com: Permission denied (publickey).
+  ```
+- **원인 가설:** 키는 내 PC에 생성되었지만, 공개키가 GitHub 계정에 등록되지 않았을 수 있습니다.
+- **확인:** GitHub의 SSH and GPG keys에 공개키를 Authentication Key로 등록한 뒤 다시 시도하자 인증에 성공했습니다.
+  ```bash
+  $ ssh -T git@github.com
+  Hi okman82! You've successfully authenticated, but GitHub does not provide shell access.
+  ```
+- **해결/대안:** 공개키(`.pub`)만 GitHub에 등록하고 개인키는 PC에만 보관했습니다. 패스프레이즈를 쓰는 경우 `ssh-agent`와 `ssh-add`로 터미널 세션 동안 반복 입력을 줄였습니다.
 
 
 ## 17. 보안 및 개인정보 점검
 
-- [ ] 문서, 로그, 스크린샷에 토큰, 비밀번호, 개인키, 인증 코드가 없음
-- [ ] `git config --list`와 `docker info`의 개인 정보를 확인하고 필요한 부분을 마스킹함
-- [ ] 저장소의 커밋 이력에도 민감정보가 없음
+- [x] 문서, 로그, 스크린샷에 토큰, 비밀번호, 개인키, 인증 코드가 없음
+- [x] `git config --list`와 `docker info`의 개인 정보를 확인함 (`user.email`은 GitHub noreply 주소 사용)
+- [x] 저장소의 커밋 이력에 토큰, 비밀번호, 개인키가 없음 (이전 커밋에 작성자 이메일이 남아 있으며, 이후 커밋은 noreply 주소 사용)
 
 <!--
 [보너스: 선택 사항] 수행하지 않으면 아래 18장 전체를 삭제합니다.
@@ -1133,15 +1145,54 @@ git push
 
 ## 18. 보너스 과제
 
-- [ ] Docker Compose 단일 서비스 실행
-- [ ] Docker Compose 멀티 컨테이너 및 서비스 이름 통신 확인
-- [ ] Compose 운영 명령(`up`, `down`, `ps`, `logs`) 수행
-- [ ] 환경 변수로 포트와 모드 변경
-- [ ] GitHub SSH 키 등록 및 푸시 확인
+- [x] Docker Compose 단일 서비스 실행
+- [x] Docker Compose 멀티 컨테이너 및 서비스 이름 통신 확인
+- [x] Compose 운영 명령(`up`, `down`, `ps`, `logs`) 수행
+- [x] 환경 변수로 포트와 모드 변경
+- [x] GitHub SSH 키 등록 및 푸시 확인
+
+소스: [docker-compose.yml](docker-compose.yml)
+
+### 18.1 단일 서비스 실행
 
 ```bash
-✏️ 수행한 보너스 항목의 명령과 출력 붙여넣기
+(첨부 로그 1~86줄)
 ```
+
+**배운 점:** 긴 `docker run` 옵션을 `docker-compose.yml`에 기록하면 실행 설정을 문서처럼 관리하고 같은 방식으로 재실행할 수 있습니다.
+
+### 18.2 멀티 컨테이너 통신
+
+```bash
+(첨부 로그 87~169줄)
+```
+
+**배운 점:** Compose가 만든 `workstation-mission_default` 네트워크에서 `web`이 서비스 이름 `helper`로 접속했습니다. `helper`는 호스트 포트를 열지 않아도 같은 네트워크의 서비스와 통신할 수 있습니다.
+
+### 18.3 환경 변수로 포트와 모드 변경
+
+```bash
+(첨부 로그 170~238줄)
+```
+
+**배운 점:** 파일을 수정하지 않고 기본값은 `8090`, `dev`로, 실행 시 값을 넣으면 `9090`, `prod`로 바뀌어 설정과 코드가 분리됨을 확인했습니다.
+
+### 18.4 운영 명령 정리
+
+| 명령 | 역할 |
+| --- | --- |
+| `docker compose up -d` | 서비스를 백그라운드로 실행 |
+| `docker compose ps` | 서비스 상태 확인 |
+| `docker compose logs <서비스>` | 서비스 로그 확인 |
+| `docker compose down` | 컨테이너와 기본 네트워크 정리 |
+
+### 18.5 GitHub SSH 키 설정
+
+```bash
+(ssh -T, git remote -v, git push 명령과 출력)
+```
+
+**배운 점:** HTTPS는 저장된 자격 증명으로, SSH는 개인키와 GitHub에 등록한 공개키로 인증합니다. 공개키만 등록하고, 개인키와 비밀번호는 공유하거나 커밋하지 않습니다.
 
 <!--
 [제출 전 최종 점검]
