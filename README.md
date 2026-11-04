@@ -883,10 +883,44 @@ docker rm -f vol-b
 -->
 
 ```bash
-✏️ 볼륨 생성, 연결, 삭제 전후 검증 명령과 출력 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker volume create web-data
+web-data
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker volume ls
+DRIVER    VOLUME NAME
+local     web-data
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker volume inspect web-data
+[
+    {
+        "CreatedAt": "2026-11-04T11:35:08Z",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/web-data/_data",
+        "Name": "web-data",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d --name vol-a -v web-data:/data ubuntu sleep infinity
+fab84c7a9f48f126c4e6de464075a6a59b4df48e968f74546938614f59c1db0e
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker exec vol-a sh -c "echo 'persist-test' > /data/note.txt && cat /data/note.txt"
+persist-test
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker rm -f vol-a
+vol-a
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker ps -a --filter name=vol-a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker run -d --name vol-b -v web-data:/data ubuntu sleep infinity
+513b6d63a4ab3f8861bffd1cd92f5b9e79c5c72f42099b2e2f330c785533fe67
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker exec vol-b cat /data/note.txt
+persist-test
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker rm -f vol-b
+vol-b
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker volume ls
+DRIVER    VOLUME NAME
+local     web-data
+ogasa9995@GNIA-C201-B04:~/workstation-mission$
 ```
 
-**결과 해석:** ✏️ 컨테이너를 삭제해도 데이터가 남은 이유
+**결과 해석:** 데이터가 컨테이너 내부가 아니라 컨테이너와 수명이 분리된 `web-data` 볼륨에 저장되었기 때문에, `vol-a`를 삭제해도 남아 있었고 새 컨테이너 `vol-b`에서 다시 읽을 수 있었습니다.
 
 ## 14. Git 설정 및 GitHub 연동
 
@@ -922,54 +956,92 @@ VSCode의 GitHub 로그인 상태와 원격 저장소 연결 화면을 캡처합
 ### 14.1 Git 설정
 
 ```bash
-✏️ git config --list 결과 붙여넣기(개인정보 마스킹)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager config --list
+user.name=okman82
+user.email=56617551+okman82@users.noreply.github.com
+init.defaultbranch=main
+credential.https://github.com.helper=
+credential.https://github.com.helper=!/usr/bin/gh auth git-credential
+credential.https://gist.github.com.helper=
+credential.https://gist.github.com.helper=!/usr/bin/gh auth git-credential
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+remote.origin.url=https://github.com/okman82/codyssey_E1-1.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.main.remote=origin
+branch.main.merge=refs/heads/main
+branch.main.vscode-merge-base=origin/main
 ```
 
 ### 14.2 GitHub 저장소 연동
 
 ```bash
-✏️ git status, git remote -v, git log --oneline 결과 붙여넣기
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        docs/images/vscode-github.png
+
+nothing added to commit but untracked files present (use "git add" to track)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git remote -v
+origin  https://github.com/okman82/codyssey_E1-1.git (fetch)
+origin  https://github.com/okman82/codyssey_E1-1.git (push)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git --no-pager log --oneline -n 3
+0803bae (HEAD -> main, origin/main, origin/HEAD) docs : 개발 워크스테이션 미션 수행 결과 정리
+7cccb00 수정
+9842ba1 modify
 ```
 
 ![VSCode GitHub 연동 화면](docs/images/vscode-github.png)
 
 ## 15. 핵심 개념 정리
 
-<!-- 아래 초안을 이해한 뒤 내 실습 결과를 예로 들어 내 말로 고칩니다. -->
-
 ### 절대 경로와 상대 경로
 
-절대 경로는 루트(`/`)에서 시작하므로 현재 위치와 관계없이 같은 대상을 가리킵니다. 예: `/home/user/practice-lab`  
-상대 경로는 현재 위치를 기준으로 해석합니다. 예: `../docs`
+절대 경로는 루트(`/`)에서 시작하므로 현재 위치와 관계없이 같은 대상을 가리킵니다. 상대 경로는 현재 위치를 기준으로 해석합니다.
+
+- 절대 경로 예: `/home/ogasa9995/practice-lab`. `/tmp`에 있을 때도 같은 폴더를 가리킵니다.
+- 상대 경로 예: `cd ..`. `/home/ogasa9995/practice-lab/sub`에서 실행하자 상위 폴더인 `/home/ogasa9995/practice-lab`으로 이동했습니다.
 
 ### 파일 권한과 755, 644
 
-`r`은 읽기(4), `w`는 쓰기(2), `x`는 실행(1)이며, 세 자리 숫자는 차례로 소유자, 그룹, 기타 사용자의 권한 합계입니다.
+`r`은 읽기(4), `w`는 쓰기(2), `x`는 실행(1)입니다. 세 자리 숫자는 차례로 소유자, 그룹, 기타 사용자의 권한을 더한 값입니다.
 
-- `755`: 소유자 `rwx`, 그룹과 기타 사용자 `r-x`
-- `644`: 소유자 `rw-`, 그룹과 기타 사용자 `r--`
+- `755`(`rwxr-xr-x`): 소유자는 7(4+2+1)로 모든 권한, 그룹과 기타 사용자는 5(4+1)로 읽기와 실행 권한을 가집니다.
+- `644`(`rw-r--r--`): 소유자는 6(4+2)으로 읽기와 쓰기, 그룹과 기타 사용자는 4로 읽기 권한만 가집니다.
 
-디렉토리의 `x`는 해당 디렉토리로 들어가거나 그 안의 항목에 접근할 수 있는 권한입니다.
+실습에서 `hello.sh`는 `644`일 때 `Permission denied`가 발생했고, `755`로 바꾸자 `script ran`이 출력되었습니다. 디렉토리의 `x`는 그 안으로 들어가거나 내부 항목에 접근할 수 있는 권한입니다.
 
 ### 이미지와 컨테이너, 커스텀 이미지
 
-이미지는 실행에 필요한 내용을 묶은 읽기 전용 템플릿이고, 컨테이너는 이미지를 실행한 격리된 인스턴스입니다. 커스텀 이미지는 `FROM`으로 기존 이미지를 가져와 필요한 내용만 더해 만들기 때문에 같은 환경을 반복해서 재현할 수 있습니다.
+이미지는 실행에 필요한 내용을 묶은 읽기 전용 템플릿이고, 컨테이너는 이미지를 실행한 격리된 인스턴스입니다. 실습에서는 `my-web:1.0` 이미지 하나로 `my-web-8080`, `my-web-8081` 컨테이너를 따로 실행했습니다.
+
+커스텀 이미지는 `FROM`으로 기존 이미지를 가져와 필요한 내용을 더해 만듭니다. `nginx:alpine`에 `LABEL`, `ENV`, `COPY`, `HEALTHCHECK`를 추가해, 같은 환경을 다시 만들 수 있도록 Dockerfile로 기록했습니다.
 
 ### 포트 매핑이 필요한 이유
 
-컨테이너는 격리된 네트워크에서 실행되므로 내부 포트에 호스트에서 바로 접근할 수 없습니다. `-p <호스트 포트>:<컨테이너 포트>`로 연결하면 호스트 주소로 접속할 수 있고, 내부 포트가 같은 컨테이너도 서로 다른 호스트 포트로 함께 실행할 수 있습니다.
+컨테이너는 격리된 네트워크에서 실행되므로, 호스트에서 접근할 수 있도록 포트를 연결해야 합니다. `-p <호스트 포트>:<컨테이너 포트>` 형식을 사용합니다.
+
+실습의 두 컨테이너는 내부 포트가 모두 80이지만, 호스트 포트를 각각 8080과 8081로 연결해 함께 실행하고 따로 접속할 수 있었습니다.
 
 ### 바인드 마운트와 Docker 볼륨
 
 | 구분 | 바인드 마운트 | Docker 볼륨 |
 | --- | --- | --- |
 | 저장 위치 | 내가 지정한 호스트 경로 | Docker가 관리하는 영역 |
-| 주요 용도 | 개발 중 코드 변경 즉시 반영 | 데이터베이스 등 영속 데이터 보관 |
-| 컨테이너 삭제 시 | 호스트 파일 유지 | 볼륨 데이터 유지 |
+| 주요 용도 | 개발 중 파일 변경 즉시 반영 | 데이터베이스 등 영속 데이터 보관 |
+| 지정 예 | `-v "$(pwd)/site:/usr/share/nginx/html"` | `-v web-data:/data` |
+| 실습 결과 | 호스트 파일 수정 후 8082가 `v2`로 변경, 이미지로 실행한 8080은 `v1` 유지 | `vol-a` 삭제 후 `vol-b`에서 `persist-test` 확인 |
 
 ### Git과 GitHub
 
-Git은 내 컴퓨터에서 변경 이력을 관리하는 버전 관리 도구입니다. GitHub는 Git 저장소를 원격으로 호스팅하며 코드 리뷰, 이슈 등 협업 기능을 제공하는 플랫폼입니다.
+Git은 내 컴퓨터에서 변경 이력을 관리하는 버전 관리 도구이고, GitHub는 Git 저장소를 원격으로 호스팅하며 협업 기능을 제공하는 플랫폼입니다.
+
+실습에서 `git commit`은 변경 이력을 내 PC에 저장했고, `git push origin main`을 실행해 그 이력을 GitHub의 원격 저장소에 반영했습니다.
 
 ## 16. 트러블슈팅
 
@@ -994,19 +1066,27 @@ rm chmod-test.txt
 - git push 비밀번호 인증 실패: VSCode 로그인 또는 SSH 키 사용
 -->
 
-### 사례 1: ✏️ 문제 제목
+### 사례 1: VSCode 소스 제어에서 커밋이 진행되지 않음
 
-- **문제:** ✏️ 발생한 현상과 오류 메시지
-- **원인 가설:** ✏️ 처음 예상한 원인
-- **확인:** ✏️ 가설을 확인한 명령과 결과
-- **해결/대안:** ✏️ 조치 내용과 조치 후 결과
+- **문제:** VSCode 소스 제어에서 커밋과 푸시를 실행했지만 진행되지 않았습니다.
+- **원인 가설:** 커밋 메시지를 입력하지 않아 커밋이 만들어지지 않았을 것으로 판단했습니다.
+- **확인:** Message 칸에 내용을 입력한 뒤 다시 실행하자 커밋과 푸시가 정상 진행되었습니다.
+- **해결/대안:** Git 커밋에는 메시지가 필요하므로, 커밋 전에 변경 내용을 설명하는 메시지를 입력합니다. 푸시 후 `git status`에서 `up to date with 'origin/main'`을 확인합니다.
 
-### 사례 2: ✏️ 문제 제목
+### 사례 2: git push가 서버 오류로 거부됨
 
-- **문제:** ✏️ 발생한 현상과 오류 메시지
-- **원인 가설:** ✏️ 처음 예상한 원인
-- **확인:** ✏️ 가설을 확인한 명령과 결과
-- **해결/대안:** ✏️ 조치 내용과 조치 후 결과
+- **문제:** `git push` 중 업로드 후 원격 저장소가 푸시를 거부했습니다.
+  ```text
+  Writing objects: 100% (3/3), 7.99 KiB | 7.99 MiB/s, done.
+  remote: Internal Server Error
+  To https://github.com/okman82/codyssey_E1-1.git
+   ! [remote rejected] main -> main (Internal Server Error)
+  error: failed to push some refs to 'https://github.com/okman82/codyssey_E1-1.git'
+  ```
+- **원인 가설:** 업로드가 완료되었고 인증 실패 메시지가 없었으며, 오류가 `remote:`로 표시되어 GitHub 서버 측 일시 오류로 추정했습니다.
+- **확인:** githubstatus.com에서 GitHub 서비스 상태를 확인했습니다. 잠시 후 푸시를 다시 실행한 뒤 `git status`에서 `Your branch is up to date with 'origin/main'`을, `git log`에서 `0803bae` 커밋이 `origin/main`에 반영된 것을 확인했습니다.
+- **해결/대안:** 코드나 설정을 변경하지 않고 잠시 기다린 뒤 `git push`를 다시 실행했습니다. 같은 오류가 반복되면 GitHub 상태 페이지와 오류의 Request ID를 확인합니다.
+
 
 ## 17. 보안 및 개인정보 점검
 
