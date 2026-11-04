@@ -1294,10 +1294,22 @@ Enter passphrase for key '/home/ogasa9995/.ssh/id_ed25519':
 Hi okman82! You've successfully authenticated, but GitHub does not provide shell access.
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ git remote set-url origin git@github.com:okman82/codyssey_E1-1.git
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ git remote -v
-origin  https://github.com/okman82/codyssey_E1-1.git (fetch)
-origin  https://github.com/okman82/codyssey_E1-1.git (push)
+origin  git@github.com:okman82/codyssey_E1-1.git (fetch)
+origin  git@github.com:okman82/codyssey_E1-1.git (push)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git add .
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ git commit -m "docs: VSCode GitHub 로그인 증거 교체"
+[main 9112b97] docs: VSCode GitHub 로그인 증거 교체
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 ogasa9995@GNIA-C201-B04:~/workstation-mission$ git push origin main
-Everything up-to-date
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 24 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 541 bytes | 541.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To github.com:okman82/codyssey_E1-1.git
+   4b325c2..9112b97  main -> main
 ```
 
 **배운 점:** HTTPS는 저장된 자격 증명으로, SSH는 개인키와 GitHub에 등록한 공개키로 인증합니다. 공개키만 등록하고, 개인키와 비밀번호는 공유하거나 커밋하지 않습니다.
