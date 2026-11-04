@@ -1156,7 +1156,39 @@ git push
 ### 18.1 단일 서비스 실행
 
 ```bash
-(첨부 로그 1~86줄)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ nano docker-compose.yml
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose up -d --build
+[+] Building 0.2s (9/9) FINISHED
+(중략)
+[+] up 3/3
+ ✔ Image workstation-mission-web       Built                                                                               0.3s
+ ✔ Network workstation-mission_default Created                                                                             0.0s
+ ✔ Container workstation-mission-web-1 Started                                                                             0.2s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose ps
+NAME                        IMAGE                     COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+workstation-mission-web-1   workstation-mission-web   "/docker-entrypoint.…"   web       5 seconds ago   Up 4 seconds (health: starting)   0.0.0.0:8090->80/tcp, [::]:8090->80/tcp
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -I http://localhost:8090
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Wed, 04 Nov 2026 12:12:06 GMT
+Content-Type: text/html
+Content-Length: 252
+Last-Modified: Wed, 04 Nov 2026 11:08:03 GMT
+Connection: keep-alive
+ETag: "6aeb1213-fc"
+Accept-Ranges: bytes
+
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose logs web
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+(중략)
+web-1  | 127.0.0.1 - - [04/Nov/2026:12:12:03 +0000] "GET / HTTP/1.1" 200 252 "-" "Wget" "-"
+web-1  | 172.18.0.1 - - [04/Nov/2026:12:12:06 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/8.18.0" "-"
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose down
+[+] down 2/2
+ ✔ Container workstation-mission-web-1 Removed                                                                             0.4s
+ ✔ Network workstation-mission_default Removed                                                                             0.2s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose ps
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 ```
 
 **배운 점:** 긴 `docker run` 옵션을 `docker-compose.yml`에 기록하면 실행 설정을 문서처럼 관리하고 같은 방식으로 재실행할 수 있습니다.
@@ -1164,7 +1196,37 @@ git push
 ### 18.2 멀티 컨테이너 통신
 
 ```bash
-(첨부 로그 87~169줄)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ nano docker-compose.yml
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose up -d --build
+[+] Building 0.2s (9/9) FINISHED
+(중략)
+[+] up 4/4
+ ✔ Image workstation-mission-web          Built                                                                            0.3s
+ ✔ Network workstation-mission_default    Created                                                                          0.0s
+ ✔ Container workstation-mission-web-1    Started                                                                          0.4s
+ ✔ Container workstation-mission-helper-1 Started                                                                          0.2s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose ps
+NAME                           IMAGE                     COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+workstation-mission-helper-1   nginx:alpine              "/docker-entrypoint.…"   helper    4 seconds ago   Up 3 seconds                      80/tcp
+workstation-mission-web-1      workstation-mission-web   "/docker-entrypoint.…"   web       4 seconds ago   Up 3 seconds (health: starting)   0.0.0.0:8090->80/tcp, [::]:8090->80/tcp
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker network ls --filter name=workstation-mission
+NETWORK ID     NAME                          DRIVER    SCOPE
+04a6f96a4056   workstation-mission_default   bridge    local
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose exec -T web wget -qO- http://helper | head -n 5
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose logs helper
+helper-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+(중략)
+helper-1  | 172.18.0.3 - - [04/Nov/2026:12:13:11 +0000] "GET / HTTP/1.1" 200 896 "-" "Wget" "-"
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose down
+[+] down 3/3
+ ✔ Container workstation-mission-helper-1 Removed                                                                          0.3s
+ ✔ Container workstation-mission-web-1    Removed                                                                          0.4s
+ ✔ Network workstation-mission_default    Removed                                                                          0.2s
 ```
 
 **배운 점:** Compose가 만든 `workstation-mission_default` 네트워크에서 `web`이 서비스 이름 `helper`로 접속했습니다. `helper`는 호스트 포트를 열지 않아도 같은 네트워크의 서비스와 통신할 수 있습니다.
@@ -1172,10 +1234,45 @@ git push
 ### 18.3 환경 변수로 포트와 모드 변경
 
 ```bash
-(첨부 로그 170~238줄)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ nano docker-compose.yml
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose up -d --build
+[+] Building 0.2s (9/9) FINISHED
+(중략)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -I http://localhost:8090
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+(중략)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose exec web printenv APP_ENV
+dev
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose down
+[+] down 3/3
+ ✔ Container workstation-mission-web-1    Removed                                                                          0.4s
+ ✔ Container workstation-mission-helper-1 Removed                                                                          0.3s
+ ✔ Network workstation-mission_default    Removed                                                                          0.3s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ WEB_PORT=9090 APP_ENV=prod docker compose up -d
+[+] up 3/3
+ ✔ Network workstation-mission_default    Created                                                                          0.0s
+ ✔ Container workstation-mission-web-1    Started                                                                          0.2s
+ ✔ Container workstation-mission-helper-1 Started                                                                          0.3s
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose ps
+NAME                           IMAGE                     COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+workstation-mission-helper-1   nginx:alpine              "/docker-entrypoint.…"   helper    3 seconds ago   Up 3 seconds                      80/tcp
+workstation-mission-web-1      workstation-mission-web   "/docker-entrypoint.…"   web       3 seconds ago   Up 3 seconds (health: starting)   0.0.0.0:9090->80/tcp, [::]:9090->80/tcp
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ curl -I http://localhost:9090
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+(중략)
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose exec web printenv APP_ENV
+prod
+ogasa9995@GNIA-C201-B04:~/workstation-mission$ docker compose down
+[+] down 3/3
+ ✔ Container workstation-mission-helper-1 Removed                                                                          0.4s
+ ✔ Container workstation-mission-web-1    Removed                                                                          0.4s
+ ✔ Network workstation-mission_default    Removed                                                                          0.2s
 ```
 
 **배운 점:** 파일을 수정하지 않고 기본값은 `8090`, `dev`로, 실행 시 값을 넣으면 `9090`, `prod`로 바뀌어 설정과 코드가 분리됨을 확인했습니다.
+
 
 ### 18.4 운영 명령 정리
 
